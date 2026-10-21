@@ -192,33 +192,12 @@ git config --global delta.hide-plus-minus-markers false
 info "Installing lazygit config..."
 install_owned_file "$REPO_DIR/config/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
 
-# --- 10. Neovim (LazyVim) --------------------------------------------------------------
-info "Installing Neovim config (LazyVim)..."
-if [[ -d "$HOME/.config/nvim" ]] && ! diff -rq "$REPO_DIR/config/nvim" "$HOME/.config/nvim" >/dev/null 2>&1; then
-  warn "An existing Neovim config differs; it will be backed up and replaced."
-fi
-install_owned_dir "$REPO_DIR/config/nvim" "$HOME/.config/nvim"
-
-# --- 11. yazi (theme only) ---------------------------------------------------------------
-info "Installing yazi theme..."
-install_owned_file "$REPO_DIR/config/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
-install_owned_file "$REPO_DIR/config/yazi/package.toml" "$HOME/.config/yazi/package.toml"
-install_owned_dir "$REPO_DIR/config/yazi/flavors" "$HOME/.config/yazi/flavors"
-
 # --- 12. bat themes ------------------------------------------------------------------------
 info "Installing Catppuccin themes for bat..."
 if command -v bat >/dev/null 2>&1; then
   bash "$REPO_DIR/scripts/bat-themes.sh"
 else
   warn "bat not found; run scripts/bat-themes.sh after dependencies are installed."
-fi
-
-# --- 13. Neovim bootstrap ---------------------------------------------------------------------
-info "Bootstrapping Neovim plugins (headless)..."
-if command -v nvim >/dev/null 2>&1; then
-  nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 || warn "Neovim plugin sync failed; it will retry on first launch."
-else
-  warn "nvim not found; plugins will install on first launch."
 fi
 
 # --- 14. Done -----------------------------------------------------------------------------------

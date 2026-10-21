@@ -1,13 +1,73 @@
-# Catppuccin Workstation — prompt and syntax highlighting.
-# Sourced from ~/.zshrc via a managed block appended by install.sh.
-# Command aliases, completion, and navigation belong to the user's own setup.
 
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+# Catppuccin Workstation — Zsh configuration
 
-# Keep syntax highlighting after prompt initialization and user-defined widgets.
-typeset _catppuccin_brew_prefix=""
+# --------------------------------------------------
+# 1. Homebrew
+# --------------------------------------------------
 if command -v brew >/dev/null 2>&1; then
-  _catppuccin_brew_prefix="$(brew --prefix)"
+  _brew_prefix="$(brew --prefix)"
+else
+  _brew_prefix=""
 fi
-[[ -n "$_catppuccin_brew_prefix" && -r "$_catppuccin_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && source "$_catppuccin_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-unset _catppuccin_brew_prefix
+
+# --------------------------------------------------
+# 2. Zsh completion system
+# --------------------------------------------------
+autoload -Uz compinit
+compinit
+
+# --------------------------------------------------
+# 3. fzf — fuzzy search
+# --------------------------------------------------
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+
+# --------------------------------------------------
+# 4. fzf-tab — interactive Tab completion
+# --------------------------------------------------
+if [[ -n "$_brew_prefix" ]]; then
+  _fzf_tab="$_brew_prefix/opt/fzf-tab/share/fzf-tab/fzf-tab.zsh"
+  if [[ -r "$_fzf_tab" ]]; then
+    source "$_fzf_tab"
+  fi
+  unset _fzf_tab
+fi
+
+# --------------------------------------------------
+# 5. zoxide — smart directory navigation
+# --------------------------------------------------
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+# --------------------------------------------------
+# 6. zsh-autosuggestions
+# --------------------------------------------------
+if [[ -n "$_brew_prefix" ]]; then
+  _autosuggestions="$_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  if [[ -r "$_autosuggestions" ]]; then
+    source "$_autosuggestions"
+  fi
+  unset _autosuggestions
+fi
+
+# --------------------------------------------------
+# 7. Starship — original prompt
+# --------------------------------------------------
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+
+# --------------------------------------------------
+# 8. Syntax highlighting — load last
+# --------------------------------------------------
+if [[ -n "$_brew_prefix" ]]; then
+  _syntax="$_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  if [[ -r "$_syntax" ]]; then
+    source "$_syntax"
+  fi
+  unset _syntax
+fi
+
+unset _brew_prefix
