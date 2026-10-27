@@ -1,23 +1,31 @@
 #!/usr/bin/env bash
-# Catppuccin Workstation — incremental installer.
+# Catppuccin Workstation — customized installer.
 #
-#   git clone https://github.com/barrychen38/catppuccin-workstation && ./catppuccin-workstation/install.sh
+# Based on:
+#   https://github.com/barrychen38/catppuccin-workstation
 #
-# or directly:
+# Personal fork:
+#   https://github.com/yxiaoeng/catppuccin-workstation
 #
-#   curl -fsSL https://raw.githubusercontent.com/barrychen38/catppuccin-workstation/main/install.sh | bash
+# Installation:
+#   git clone https://github.com/yxiaoeng/catppuccin-workstation.git
+#   cd catppuccin-workstation
+#   ./install.sh
 #
-# Everything is incremental: your ~/.zshrc and ~/.gitconfig keep their own
-# content (we only append a managed block / set delta keys), and any file we
-# fully own is backed up before being replaced.
+# Zsh configuration is sourced directly from this Git repository.
+# Existing ~/.zshrc content is preserved outside the managed block.
+# Fully managed configuration files are backed up before replacement.
+#
+# This installer runs from a local clone of the repository.
 set -euo pipefail
 
-REPO_URL="https://github.com/barrychen38/catppuccin-workstation"
+REPO_URL="https://github.com/yxiaoeng/catppuccin-workstation"
 CLONE_DIR="$HOME/.catppuccin-workstation"
 MANAGED="catppuccin-workstation"
-ZSH_SNIPPET_DIR="$HOME/.config/$MANAGED"
+
 NO_BREW=0
 [[ "${1:-}" == "--no-brew" ]] && NO_BREW=1
+
 
 info() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mWarning:\033[0m %s\n' "$*"; }
@@ -85,16 +93,6 @@ install_owned_file() {
   cp "$src" "$dst"
 }
 
-install_owned_dir() {
-  local src=$1 dst=$2
-  mkdir -p "$(dirname "$dst")"
-  if [[ -d "$dst" ]] && diff -rq "$src" "$dst" >/dev/null 2>&1; then
-    return 0
-  fi
-  backup "$dst"
-  cp -R "$src" "$dst"
-}
-
 # Replace (or insert) a managed block in a config file we do NOT own.
 # Re-running always refreshes the block in place; the rest of the file is kept.
 # $2 is either a file path or a literal string.
@@ -132,10 +130,13 @@ set_managed_block() {
   mv "$tmp" "$target"
 }
 
-# --- 4. zsh: snippet + managed block in ~/.zshrc ---------------------------------
-info "Installing zsh integrations (incremental, ~/.zshrc is kept)..."
-install_owned_file "$REPO_DIR/config/zsh/zshrc" "$ZSH_SNIPPET_DIR/zshrc"
-set_managed_block "$HOME/.zshrc" "source \"$ZSH_SNIPPET_DIR/zshrc\""
+
+# --- 4. Zsh: source configuration directly from Git repo ------------------------
+info "Linking Zsh configuration directly to Git repository..."
+
+ZSH_CONFIG="$REPO_DIR/config/zsh/zshrc"
+
+set_managed_block "$HOME/.zshrc" "source \"$ZSH_CONFIG\""
 
 USER_SHELL="$(dscl . -read "$HOME" UserShell 2>/dev/null | awk '{print $2}' || true)"
 
