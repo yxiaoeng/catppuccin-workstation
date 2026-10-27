@@ -20,7 +20,7 @@
 set -euo pipefail
 
 REPO_URL="https://github.com/yxiaoeng/catppuccin-workstation"
-CLONE_DIR="$HOME/.catppuccin-workstation"
+CLONE_DIR="$HOME/Workspace/catppuccin-workstation"
 MANAGED="catppuccin-workstation"
 
 NO_BREW=0
